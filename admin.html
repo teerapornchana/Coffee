@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew & Brown - Staff Dashboard</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="admin-navbar">
+        <div class="logo">Brew & Brown <span class="badge">Staff</span></div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-container">
+        <header class="admin-header">
+            <h2>จัดการคิวรายวัน (Daily Queue Dashboard)</h2>
+            <div class="filter-group">
+                <label for="filterDate">เลือกวันที่:</label>
+                <input type="date" id="filterDate">
+                <button id="btnRefresh" class="btn-secondary">รีเฟรชข้อมูล</button>
+            </div>
+        </header>
+
+        <!-- Table Data -->
+        <div class="table-container">
+            <table class="queue-table">
+                <thead>
+                    <tr>
+                        <th>รอบเวลา</th>
+                        <th>รหัสการจอง</th>
+                        <th>ชื่อลูกค้า</th>
+                        <th>เบอร์โทรศัพท์</th>
+                        <th>จำนวนคน</th>
+                        <th>หมายเหตุ</th>
+                        <th>สถานะ</th>
+                        <th>จัดการคิว</th>
+                    </tr>
+                </thead>
+                <tbody id="queueTableBody">
+                    <tr><td colspan="8" class="text-center">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Supabase SDK & Custom Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
