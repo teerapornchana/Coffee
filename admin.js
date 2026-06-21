@@ -7,13 +7,13 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 document.addEventListener('DOMContentLoaded', () => {
     const filterDate = document.getElementById('filterDate');
     const btnRefresh = document.getElementById('btnRefresh');
+    const btnShowAll = document.getElementById('btnShowAll');
     
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
-    filterDate.value = today;
+    // Set default to empty (Show All)
+    filterDate.value = '';
 
-    // Fetch initial data
-    fetchBookings(today);
+    // Fetch initial data (All)
+    fetchBookings('');
 
     // Event Listeners
     filterDate.addEventListener('change', (e) => {
@@ -23,17 +23,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btnRefresh.addEventListener('click', () => {
         fetchBookings(filterDate.value);
     });
+
+    btnShowAll.addEventListener('click', () => {
+        filterDate.value = '';
+        fetchBookings('');
+    });
 });
 
 async function fetchBookings(dateString) {
     const tableBody = document.getElementById('queueTableBody');
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">กำลังโหลดข้อมูล...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9" class="text-center">กำลังโหลดข้อมูล...</td></tr>';
 
     try {
-        const { data, error } = await supabaseClient
-            .from('reservations')
-            .select('*')
-            .eq('booking_date', dateString)
+        let query = supabaseClient.from('reservations').select('*');
+        
+        if (dateString) {
+            query = query.eq('booking_date', dateString);
+        }
+
+        const { data, error } = await query
+            .order('booking_date', { ascending: true })
             .order('time_slot', { ascending: true })
             .order('created_at', { ascending: true });
 
@@ -43,14 +52,14 @@ async function fetchBookings(dateString) {
         }
 
         if (!data || data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center">ไม่มีรายการจองคิวในวันนี้</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="text-center">ไม่มีรายการจองคิว</td></tr>';
             return;
         }
 
         renderTable(data);
     } catch (err) {
         console.error("Supabase Select Error:", err);
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center" style="color:#ef4444;">เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}<br><small>(แนะนำ: โปรดตรวจสอบ RLS Policy ให้สิทธิ์ anon สามารถ SELECT ได้)</small></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:#ef4444;">เกิดข้อผิดพลาดในการดึงข้อมูล: ${err.message}<br><small>(แนะนำ: โปรดตรวจสอบ RLS Policy ให้สิทธิ์ anon สามารถ SELECT ได้)</small></td></tr>`;
     }
 }
 
@@ -84,6 +93,7 @@ function renderTable(data) {
         tr.innerHTML = `
             <td><strong>${row.time_slot}</strong></td>
             <td><span style="font-family: monospace; color: #5D4037;">${row.booking_code}</span></td>
+            <td>${row.booking_date}</td>
             <td>${row.customer_name}</td>
             <td>${row.phone_number}</td>
             <td>${row.guests_count} ท่าน</td>
